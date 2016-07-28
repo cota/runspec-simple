@@ -28,75 +28,154 @@ my %specint = (
     '400.perlbench' => {
 	'flags' => '-I. -I./lib',
 	'runs' => {
-	    'test' => [qw/attrs.pl gv.pl makerand.pl pack.pl redef.pl ref.pl regmesg.pl test.pl/],
+	    'test' => [qw/attrs.pl
+                          gv.pl
+                          makerand.pl
+                          pack.pl
+                          redef.pl
+                          ref.pl
+                          regmesg.pl
+                          test.pl/],
+	    'train' => ['diffmail.pl 2 550 15 24 23 100',
+			'perfect.pl b 3',
+			'scrabbl.pl scrabbl.in',
+			'splitmail.pl 535 13 25 24 1091',
+			'suns.pl'],
+	    'ref' => ['checkspam.pl 2500 5 25 11 150 1 1 1 1',
+		      'diffmail.pl 4 800 10 17 19 300',
+		      'splitmail.pl 1600 12 26 16 4500'],
 	},
     },
     '401.bzip2' => {
 	'runs' => {
-	    'test' => ['input.program 5', 'dryer.jpg 2'],
+	    'test' => ['input.program 5',
+		       'dryer.jpg 2'],
+	    'train' => ['input.program 10',
+			'byoudoin.jpg 5',
+			'input.combined 80'],
+	    'ref' => ['input.source 280',
+		      'chicken.jpg 30',
+		      'liberty.jpg 30',
+		      'input.program 280',
+		      'text.html 280',
+		      'input.combined 200'],
 	},
     },
     '403.gcc' => {
 	'runs' => {
 	    'test' => ['cccp.in -o cccp.s'],
+	    'train' => ['integrate.in -o integrate.s'],
+	    'ref' => ['166.in -o 166.s',
+		       '200.in -o 200.s',
+		       'c-typeck.in -o c-typeck.s',
+		       'cp-decl.in -o cp-decl.s',
+		       'expr.in -o expr.s',
+		       'expr2.in -o expr2.s',
+		       'g23.in -o g23.s',
+		       's04.in -o s04.s',
+		       'scilab.in -o scilab.s'],
 	},
     },
     '429.mcf' => {
 	'runs' => {
 	    'test' => ['inp.in'],
+	    'train' => ['inp.in'],
+	    'ref' => ['inp.in'],
 	},
     },
     '445.gobmk' => {
 	'flags' => '--quiet --mode gtp --gtp-input',
 	'runs' => {
-	    'test' => [qw(capture.tst connect.tst connect_rot.tst connection.tst connection_rot.tst cutstone.tst dniwog.tst)],
+	    'test' => [qw(capture.tst
+                          connect.tst
+                          connect_rot.tst
+                          connection.tst
+                          connection_rot.tst
+                          cutstone.tst
+                          dniwog.tst)],
+	    'train' => [qw(arb.tst
+                           arend.tst
+                           arion.tst
+                           atari_atari.tst
+                           blunder.tst
+                           buzco.tst
+                           nicklas2.tst
+                           nicklas4.tst)],
+	    'ref' => [qw(13x13.tst
+                         nngs.tst
+                         score2.tst
+                         trevorc.tst
+                         trevord.tst)],
 	},
     },
     '456.hmmer' => {
 	'runs' => {
 	    'test' => ['--fixed 0 --mean 325 --num 45000 --sd 200 --seed 0 bombesin.hmm'],
+	    'train' => ['--fixed 0 --mean 425 --num 85000 --sd 300 --seed 0 leng100.hmm'],
+	    'ref' => ['nph3.hmm swiss41',
+		      '--fixed 0 --mean 500 --num 500000 --sd 350 --seed 0 retro.hmm'],
 	},
     },
     '458.sjeng' => {
 	'runs' => {
 	    'test' => ['test.txt'],
+	    'train' => ['train.txt'],
+	    'ref' => ['ref.txt'],
 	},
     },
     '462.libquantum' => {
 	'runs' => {
 	    'test' => ['33 5'],
+	    'train' => ['143 25'],
+	    'ref' => ['1397 8'],
 	},
     },
     '464.h264ref' => {
 	'runs' => {
 	    'test' => ['-d foreman_test_encoder_baseline.cfg'],
+	    'train' => ['-d foreman_train_encoder_baseline.cfg'],
+	    'ref' => ['-d foreman_ref_encoder_baseline.cfg',
+		      '-d foreman_ref_encoder_main.cfg',
+		      '-d sss_encoder_main.cfg'],
 	},
     },
     '471.omnetpp' => {
 	'runs' => {
 	    'test' => ['omnetpp.ini'],
+	    'train' => ['omnetpp.ini'],
+	    'ref' => ['omnetpp.ini'],
 	},
     },
     '473.astar' => {
 	'runs' => {
 	    'test' => ['lake.cfg'],
+	    'train' => ['BigLakes1024.cfg',
+			'rivers1.cfg'],
+	    'ref' => ['BigLakes2048.cfg',
+		      'rivers.cfg'],
 	},
     },
     '483.xalancbmk' => {
 	'runs' => {
 	    'test' => ['-v test.xml xalanc.xsl'],
+	    'train' => ['-v allbooks.xml xalanc.xsl'],
+	    'ref' => ['-v t5.xml xalanc.xsl'],
 	},
 	'exe_name' => 'Xalan',
     },
     '999.specrand' => {
 	'runs' => {
 	    'test' => ['324342 24239'],
+	    'train' => ['1 3'],
+	    'ref' => ['1255432124 234923'],
 	},
     },
     );
 
 my %grouped_benchmarks = (
-    'int' => [qw(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar 483.xalancbmk)],
+    'int' => [qw(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer
+                 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar
+                 483.xalancbmk)],
     );
 
 my $config = 'x86_64';
