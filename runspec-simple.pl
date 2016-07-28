@@ -19,6 +19,7 @@ use strict;
 use Cwd;
 use Time::HiRes qw(gettimeofday tv_interval);
 use File::Basename;
+use lib dirname(__FILE__); # add this directory to @INC
 use File::Path qw(rmtree);
 use Getopt::Long;
 use Pod::Usage;
