@@ -175,6 +175,7 @@ my %specint = (
 
 my %grouped;
 $grouped{int} = [ grep { ! /specrand/ } sort keys %specint ];
+$grouped{all} = [ @{ $grouped{int} } ];
 
 my $config = 'x86_64';
 my $help;
