@@ -180,6 +180,7 @@ $grouped{all} = [ @{ $grouped{int} } ];
 my $config = 'x86_64';
 my $help;
 my $iterations = 1;
+my $tool_flags = '';
 my $size = 'test';
 my $tune = 'base'; # could make this configurable, but bleh
 
@@ -188,6 +189,7 @@ GetOptions(
     'h|help|man' => \$help,
     'iterations=i' => \$iterations,
     'size=s' => \$size,
+    'tool-flags=s' => \$tool_flags,
     ) or pod2usage(2);
 
 pod2usage(0) if $help;
@@ -345,7 +347,7 @@ sub clean_dir {
 
 sub run_timed {
     my ($dir, $arg) = @_;
-    my $cmd = "$tool $arg 1>/dev/null 2>/dev/null";
+    my $cmd = "$tool $tool_flags $arg 1>/dev/null 2>/dev/null";
     my $orig = getcwd;
     my $beaut_arg = $arg;
     $beaut_arg =~ s|\.\./\.\./exe/||;
