@@ -378,14 +378,16 @@ sub run_benchmark {
     my $exe = "$path/";
     my $beaut_exe = $b->{exe_name} || $benchmark;
     $beaut_exe =~ s/^[0-9]*\.//;
+    my $in = $b->{stdin} ? "<" : "";
     my $dir;
 
     $dir = prepare_run_dir($benchmark);
 
     print STDERR "$benchmark (#$iteration/$iterations)\n";
     my $t = 0.0;
+    print "runs: ", @$runs, "\n";
     foreach my $arg (@$runs) {
-	$t += run_timed($dir, "../../exe/${beaut_exe}_${tune}.${config} $common $arg");
+	$t += run_timed($dir, "../../exe/${beaut_exe}_${tune}.${config} $in $common $arg");
     }
     print STDERR "\n";
     return $t;
