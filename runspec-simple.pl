@@ -247,7 +247,7 @@ foreach (sort keys %bh) {
 # sanity-check the requested benchmarks
 for my $bench (@benchmarks) {
     if (!$all->{$bench}) {
-	die "Invalid benchmark $bench";
+	die "Invalid benchmark $bench\n";
     }
 }
 
