@@ -25,6 +25,12 @@ use Getopt::Long;
 use Pod::Usage;
 use Mean;
 
+my %noargs = (
+    'test' => [''],
+    'train' => [''],
+    'ref' => [''],
+    );
+
 my %specint = (
     '400.perlbench' => {
 	'common' => '-I. -I./lib',
@@ -78,11 +84,8 @@ my %specint = (
 	},
     },
     '429.mcf' => {
-	'runs' => {
-	    'test' => ['inp.in'],
-	    'train' => ['inp.in'],
-	    'ref' => ['inp.in'],
-	},
+	'common' => 'inp.in',
+	'runs' => \%noargs,
     },
     '445.gobmk' => {
 	'common' => '--quiet --mode gtp --gtp-input',
@@ -141,11 +144,8 @@ my %specint = (
 	},
     },
     '471.omnetpp' => {
-	'runs' => {
-	    'test' => ['omnetpp.ini'],
-	    'train' => ['omnetpp.ini'],
-	    'ref' => ['omnetpp.ini'],
-	},
+	'common' => 'omnetpp.ini',
+	'runs' => \%noargs,
     },
     '473.astar' => {
 	'runs' => {
