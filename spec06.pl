@@ -2,15 +2,15 @@
 # Note: UNIX only--the script uses 'cp'.
 
 =head1 NAME
-runspec-simple.pl - Run SPEC benchmarks under an external tool, e.g. QEMU
+spec06.pl - Run SPEC06 benchmarks under an external tool, e.g. QEMU
 
 =head1 SYNOPSIS
 
- runspec-simple.pl [OPTIONS] <action=run,clean> <path_to_tool_binary> <path_to_spec> <benchmark(s)>
+ spec.pl [OPTIONS] <action=run,clean> <path_to_tool_binary> <path_to_spec> <benchmark(s)>
  Options: --config, --iterations, --size --tool-flags.
           --help for a brief help message.
  NOTES:
-  <path_to_spec> points to the top SPEC directory.
+  <path_to_spec> points to the top SPEC06 directory.
   <benchmark> can be a specific benchmark, or int|fp|all.
 =cut
 
