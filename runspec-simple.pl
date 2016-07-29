@@ -415,7 +415,7 @@ sub prepare_run_dir {
     my $num = 0;
     my $dirname;
     while (1) {
-	$dirname = "$path/run_${tune}_${config}";
+	$dirname = "$path/run_${tune}_${size}_${config}";
 	$dirname .= sprintf(".%04d", $num);
 	$dirname .= ".$toolname";
 	if (!-d $dirname) {
@@ -446,7 +446,7 @@ sub clean_dir {
     opendir(my $dh, $path) or die "Can't open $path: $!";
     while (readdir $dh) {
 	my $dir = $_;
-	if (basename($dir) =~ m/run_${tune}_${config}\.[0-9]+\.$toolname/) {
+	if (basename($dir) =~ m/run_${tune}_${size}_${config}\.[0-9]+\.$toolname/) {
 	    if (!$pr) {
 		print "$benchmark:\n";
 		$pr = 1;
