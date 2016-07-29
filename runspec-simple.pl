@@ -372,10 +372,11 @@ sub sys {
 sub run_benchmark {
     my ($benchmark, $iteration) = @_; # $iteration={1,n}
     my $path = "$spec_path/benchspec/CPU2006/$benchmark";
-    my $common = $all->{$benchmark}->{common} || "";
-    my $runs = $all->{$benchmark}->{runs}->{$size};
+    my $b = $all->{$benchmark};
+    my $common = $b->{common} || "";
+    my $runs = $b->{runs}->{$size};
     my $exe = "$path/";
-    my $beaut_exe = $all->{$benchmark}->{exe_name} || $benchmark;
+    my $beaut_exe = $b->{exe_name} || $benchmark;
     $beaut_exe =~ s/^[0-9]*\.//;
     my $dir;
 
