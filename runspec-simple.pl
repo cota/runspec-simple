@@ -173,8 +173,8 @@ my %specint = (
     },
     );
 
-my %grouped_benchmarks;
-$grouped_benchmarks{int} = [ grep { ! /specrand/ } sort keys %specint ];
+my %grouped;
+$grouped{int} = [ grep { ! /specrand/ } sort keys %specint ];
 
 my $config = 'x86_64';
 my $help;
@@ -224,8 +224,8 @@ for my $b (keys %specint) {
 
 my @benchmarks = ();
 foreach my $b (@cli_benchmarks) {
-    if ($grouped_benchmarks{$b}) {
-	push @benchmarks, @{ $grouped_benchmarks{$b} };
+    if ($grouped{$b}) {
+	push @benchmarks, @{ $grouped{$b} };
     } else {
 	push @benchmarks, $b;
     }
