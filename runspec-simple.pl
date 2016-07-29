@@ -11,18 +11,20 @@ runspec-simple.pl - Run SPEC benchmarks under an external tool, e.g. QEMU
           --help for a brief help message.
  NOTES:
   <path_to_spec> points to the top SPEC directory.
-  <benchmark> can be a specific benchmark, or int|all.
+  <benchmark> can be a specific benchmark, or int|fp|all.
 =cut
 
 use warnings;
 use strict;
 use Cwd;
+use Config;
 use Time::HiRes qw(gettimeofday tv_interval);
 use File::Basename;
 use lib dirname(__FILE__); # add this directory to @INC
 use File::Path qw(rmtree);
 use Getopt::Long;
 use Pod::Usage;
+use IO::Dir;
 use Mean;
 
 my %noargs = (
@@ -173,9 +175,115 @@ my %specint = (
     },
     );
 
+my %specfp = (
+    '410.bwaves' => {
+	'runs' => \%noargs,
+    },
+    '416.gamess' => {
+	'runs' => {
+	    'test' =>  ['exam29.config'],
+	    'train' => ['h2ocu2+.energy.config'],
+	    'ref' =>   ['cytosine.2.config',
+			'h2ocu2+.gradient.config',
+			'triazolium.config'],
+	},
+	'stdin' => 1,
+    },
+    '433.milc' => {
+	'common' => 'su3imp.in',
+	'runs' => \%noargs,
+	'stdin' => 1,
+    },
+    '434.zeusmp' => {
+	'runs' => \%noargs,
+    },
+    '435.gromacs' => {
+	'common' => '-silent -deffnm gromacs -nice 0',
+	'runs' => \%noargs,
+    },
+    '436.cactusADM' => {
+	'common' => 'benchADM.par',
+	'runs' => \%noargs,
+    },
+    '437.leslie3d' => {
+	'common' => 'leslie3d.in',
+	'runs' => \%noargs,
+	'stdin' => 1,
+    },
+    '444.namd' => {
+	'common' => '--input namd.input --output namd.out',
+	'runs' => {
+	    'test' =>  ['--iterations 1'],
+	    'train' => ['--iterations 1'],
+	    'ref' =>   ['--iterations 38'],
+	},
+    },
+    '447.dealII' => {
+	'runs' => {
+	    'test' => ['8'],
+	    'train' => ['10'],
+	    'ref' => ['23'],
+	},
+    },
+    '450.soplex' => {
+	'runs' => {
+	    'test' =>  ['-m10000 test.mps'],
+	    'train' => ['-s1 -e -m5000 pds-20.mps',
+		        '-m1200 train.mps'],
+	    'ref' =>   ['-s1 -e -m45000 pds-50.mps',
+		        '-m3500 ref.mps'],
+	},
+    },
+    '453.povray' => {
+	'runs' => {
+	    'test' =>  ['SPEC-benchmark-test.ini'],
+	    'train' => ['SPEC-benchmark-train.ini'],
+	    'ref' =>   ['SPEC-benchmark-ref.ini'],
+	},
+    },
+    '454.calculix' => {
+	'runs' => {
+	    'test' =>  ['-i beampic'],
+	    'train' => ['-i stairs'],
+	    'ref' =>   ['-i hyperviscoplastic'],
+	},
+    },
+    '459.GemsFDTD' => {
+	'runs' => \%noargs,
+    },
+    '465.tonto' => {
+	'runs' => \%noargs,
+    },
+    '470.lbm' => {
+	'runs' => {
+	    'test' =>  ['20 reference.dat 0 1 100_100_130_cf_a.of'],
+	    'train' => ['300 reference.dat 0 1 100_100_130_cf_b.of'],
+	    'ref' =>   ['3000 reference.dat 0 0 100_100_130_ldc.of'],
+	},
+    },
+    '481.wrf' => {
+	'runs' => \%noargs,
+	'post_setup' => \&wrf_post_setup,
+    },
+    '482.sphinx3' => {
+	'common' => 'ctlfile . args.an4',
+	'runs' => \%noargs,
+	'exe_name' => 'sphinx_livepretend',
+	'post_setup' => \&sphinx_post_setup,
+    },
+    '998.specrand' => {
+	'runs' => {
+	    'test' =>  ['324342 24239'],
+	    'train' => ['1 3'],
+	    'ref' =>   ['1255432124 234923'],
+	},
+    },
+    );
+
 my %grouped;
 $grouped{int} = [ grep { ! /specrand/ } sort keys %specint ];
-$grouped{all} = [ @{ $grouped{int} } ];
+$grouped{fp} =  [ grep { ! /specrand/ } sort keys %specfp ];
+$grouped{all} = [ sort @{ $grouped{int} }, @{ $grouped{fp} } ];
 
 my $config = 'x86_64';
 my $help;
@@ -223,6 +331,10 @@ my $all;
 for my $b (keys %specint) {
     die if $all->{$b};
     $all->{$b} = $specint{$b};
+}
+for my $b (keys %specfp) {
+    die if $all->{$b};
+    $all->{$b} = $specfp{$b};
 }
 
 my @benchmarks = ();
@@ -315,7 +427,12 @@ sub prepare_run_dir {
     if (-d "$path/../data/all/input") {
 	sys("cp -r $path/../data/all/input/* $dirname");
     }
-    sys("cp -r $path/../data/$size/input/* $dirname");
+    if (-d "$path/../data/$size/input") {
+	sys("cp -r $path/../data/$size/input/* $dirname");
+    }
+    if ($all->{$benchmark}->{post_setup}) {
+	$all->{$benchmark}->{post_setup}->($dirname);
+    }
     return $dirname;
 }
 
@@ -392,3 +509,77 @@ sub run_benchmark {
     print STDERR "\n";
     return $t;
 };
+
+sub sphinx_post_setup {
+    my ($dirname) = @_;
+
+    my $endian;
+    if ($Config{'byteorder'} == 1234 || $Config{'byteorder'} == 12345678) {
+        $endian = 'le';
+    } else {
+        $endian = 'be';
+    }
+
+    opendir(my $dh, $dirname) or die "Cannot open $dirname: $!";
+    # assume both foo.be.raw and foo.le.raw exist
+    my @raws = sort map { "$dirname/$_" } grep { s/\.be\.raw$// } readdir $dh;
+    closedir $dh;
+
+    # Create new 'foo.raw' file from either foo.be.raw or foo.le.raw.
+    # Each newly-created .raw file gets an entry in 'ctlfile'.
+    my $ctlfile = "$dirname/ctlfile";
+    open(my $fh, "> $ctlfile") or die "Cannot open $ctlfile: $!";
+
+    foreach my $raw (@raws) {
+	my $base = basename($raw);
+	my $from = "${raw}.${endian}.raw";
+	my $to = "$dirname/${base}.raw";
+	sys("cp $from $to");
+
+	my $rawsize = -s $from;
+	print $fh "$base $rawsize\n";
+    }
+    close($fh) or die "Cannot close $ctlfile: $!";
+}
+
+sub wrf_copy_to_top {
+    my ($topdir, $subdir) = @_;
+
+    my $path = "$topdir/$subdir";
+    my $dh = IO::Dir->new($path);
+    if (!defined($dh)) {
+	die "Cannot open $path: $!";
+    }
+    while (defined(my $f = $dh->read)) {
+	if (! -f "$path/$f") {
+	    next;
+	}
+	sys("cp $path/$f $topdir");
+    }
+    undef $dh;
+}
+
+sub wrf_post_setup {
+    my ($dirname) = @_;
+
+    # The original object.pm script checks for a wrf_data_header_size parameter
+    # in the config file. But it seems to have been superseded, so effectively
+    # this is always set to 32.
+    my $header_size = 32;
+
+    my $endian;
+    if ($Config{'byteorder'} == 1234 || $Config{'byteorder'} == 12345678) {
+        $endian = 'le';
+    } else {
+        $endian = 'be';
+    }
+
+    # Copy files with the right endianness to the top directory.
+    wrf_copy_to_top($dirname, $endian);
+
+    # Assume that if $endian/$header_size isn't present, then the proper data
+    # files are already in the top directory.
+    if (-d "$dirname/$endian/$header_size") {
+	wrf_copy_to_top($dirname, "$endian/$header_size");
+    }
+}
