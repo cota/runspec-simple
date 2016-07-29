@@ -337,6 +337,21 @@ for my $b (keys %specfp) {
     $all->{$b} = $specfp{$b};
 }
 
+# clean up input benchmark names
+my $conv;
+foreach my $k (keys %$all) {
+    my $k_simple = $k;
+    $k_simple =~ s/^[0-9]+\.//;
+    $conv->{$k_simple} = $k;
+}
+for (my $i = 0; $i < @cli_benchmarks; $i++) {
+    my $b = $cli_benchmarks[$i];
+
+    if ($conv->{$b}) {
+	$cli_benchmarks[$i] = $conv->{$b};
+    }
+}
+
 my @benchmarks = ();
 foreach my $b (@cli_benchmarks) {
     if ($grouped{$b}) {
