@@ -269,7 +269,7 @@ sub action_run {
     for my $bench (@benchmarks) {
 	my @res = ();
 	for (my $i = 0; $i < $iterations; $i++) {
-	    push @res, run_benchmark($bench);
+	    push @res, run_benchmark($bench, $i + 1);
 	}
 	$results->{$bench}->{mean} = Mean::arithmetic(\@res);
 	$results->{$bench}->{stdev} = Mean::stdev(\@res);
@@ -370,7 +370,7 @@ sub sys {
 }
 
 sub run_benchmark {
-    my ($benchmark) = @_;
+    my ($benchmark, $iteration) = @_; # $iteration={1,n}
     my $path = "$spec_path/benchspec/CPU2006/$benchmark";
     my $flags = $all->{$benchmark}->{flags} || "";
     my $runs = $all->{$benchmark}->{runs}->{$size};
@@ -381,7 +381,7 @@ sub run_benchmark {
 
     $dir = prepare_run_dir($benchmark);
 
-    print STDERR "$benchmark\n";
+    print STDERR "$benchmark (#$iteration/$iterations)\n";
     my $t = 0.0;
     foreach my $arg (@$runs) {
 	$t += run_timed($dir, "../../exe/${beaut_exe}_${tune}.${config} $flags $arg");
