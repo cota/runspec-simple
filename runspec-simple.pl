@@ -27,7 +27,7 @@ use Mean;
 
 my %specint = (
     '400.perlbench' => {
-	'flags' => '-I. -I./lib',
+	'common' => '-I. -I./lib',
 	'runs' => {
 	    'test' => [qw/attrs.pl
                           gv.pl
@@ -85,7 +85,7 @@ my %specint = (
 	},
     },
     '445.gobmk' => {
-	'flags' => '--quiet --mode gtp --gtp-input',
+	'common' => '--quiet --mode gtp --gtp-input',
 	'runs' => {
 	    'test' => [qw(capture.tst
                           connect.tst
@@ -370,7 +370,7 @@ sub sys {
 sub run_benchmark {
     my ($benchmark, $iteration) = @_; # $iteration={1,n}
     my $path = "$spec_path/benchspec/CPU2006/$benchmark";
-    my $flags = $all->{$benchmark}->{flags} || "";
+    my $common = $all->{$benchmark}->{common} || "";
     my $runs = $all->{$benchmark}->{runs}->{$size};
     my $exe = "$path/";
     my $beaut_exe = $all->{$benchmark}->{exe_name} || $benchmark;
@@ -382,7 +382,7 @@ sub run_benchmark {
     print STDERR "$benchmark (#$iteration/$iterations)\n";
     my $t = 0.0;
     foreach my $arg (@$runs) {
-	$t += run_timed($dir, "../../exe/${beaut_exe}_${tune}.${config} $flags $arg");
+	$t += run_timed($dir, "../../exe/${beaut_exe}_${tune}.${config} $common $arg");
     }
     print STDERR "\n";
     return $t;
