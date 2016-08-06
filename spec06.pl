@@ -291,6 +291,7 @@ my $iterations = 1;
 my $tool_flags = '';
 my $size = 'test';
 my $tune = 'base'; # could make this configurable, but bleh
+my $verbose;
 
 GetOptions(
     'config=s' => \$config,
@@ -298,6 +299,7 @@ GetOptions(
     'iterations=i' => \$iterations,
     'size=s' => \$size,
     'tool-flags=s' => \$tool_flags,
+    'verbose' => \$verbose,
     ) or pod2usage(2);
 
 pod2usage(0) if $help;
@@ -479,7 +481,8 @@ sub clean_dir {
 
 sub run_timed {
     my ($dir, $arg) = @_;
-    my $cmd = "$tool $tool_flags $arg 1>/dev/null 2>/dev/null";
+    my $err_flags = $verbose ? '' : '1>/dev/null 2>/dev/null';
+    my $cmd = "$tool $tool_flags $arg $err_flags";
     my $orig = getcwd;
     my $beaut_arg = $arg;
     $beaut_arg =~ s|\.\./\.\./exe/||;
