@@ -429,6 +429,9 @@ sub pr_results {
 sub prepare_run_dir {
     my ($benchmark) = @_;
     my $path = "$spec_path/benchspec/CPU2006/$benchmark/run";
+    if (!-d $path) {
+	mkdir($path, 0755) or die "Cannot create dir '$path': $!";
+    }
     my $num = 0;
     my $dirname;
     while (1) {
