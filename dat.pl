@@ -4,6 +4,8 @@
 use warnings;
 use strict;
 use Getopt::Long;
+use File::Basename;
+use lib dirname (__FILE__);
 use Mean;
 
 my $barchart;
