@@ -19,6 +19,7 @@ my $titles;
 my $force_n_samples;
 my $int_geomean_name = 'geomean';
 my $fp_geomean_name = 'geomean';
+my @extra_barchart_args;
 my @extra_gnuplot_args;
 my $cherry_pick;
 
@@ -29,6 +30,7 @@ GetOptions(
     'cumulative' => \$cumulative,
     'force_n_samples=i' => \$force_n_samples,
     'fp-gmean-name=s' => \$fp_geomean_name,
+    'extra=s' => \@extra_barchart_args,
     'extra-gnuplot=s' => \@extra_gnuplot_args,
     'int-gmean-name=s' => \$int_geomean_name,
     'gmean' => \$gm,
@@ -46,6 +48,7 @@ my $usage_str = "usage: ./dat.pl [options] file1 [file2 ...]\n" .
     "  --force_n_samples: force a number of samples per benchmark (useful when the
            input data was not generated with --show-raw)\n" .
     "  --fp-gmean-name: name (label) of the floating point (FP) geometric mean\n" .
+    "  --extra: add extra commands to barchart\n" .
     "  --extra-gnuplot: add extra commands to gnuplot\n" .
     "  --int-gmean-name: name (label) of the integer (INT) geometric mean\n" .
     "  --gmean: include the geometric mean of the results\n" .
@@ -213,6 +216,9 @@ sub pr_barchart {
     my $keyword = 'cluster';
     if ($cumulative) {
 	$keyword = 'stacked';
+    }
+    if (@extra_barchart_args) {
+	print join("\n", map { "$_" } @extra_barchart_args), "\n";
     }
     if (@extra_gnuplot_args) {
 	print join("\n", map { "extraops=$_" } @extra_gnuplot_args), "\n";
