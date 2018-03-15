@@ -23,7 +23,7 @@ my @extra_gnuplot_args;
 my $cherry_pick;
 
 GetOptions(
-    'barchart' => \$barchart,
+    'barchart' => \$barchart, # ignored; left here for backwards compatibility
     'cherry-pick=s' => \$cherry_pick,
     'confidence=f' => \$confidence,
     'cumulative' => \$cumulative,
@@ -40,14 +40,13 @@ GetOptions(
 
 my $usage_str = "usage: ./dat.pl [options] file1 [file2 ...]\n" .
     "Options:\n" .
-    "  --barchart: output in barchart format, see https://github.com/cota/barchart\n" .
     "  --cherry-pick: pick benchmarks separately, instead of passing them via --set\n" .
     "  --confidence: confidence interval (default: 0.95)\n" .
-    "  --cumulative: interpret data as a stacked chart (--barchart mode only)\n" .
+    "  --cumulative: interpret data as a stacked chart\n" .
     "  --force_n_samples: force a number of samples per benchmark (useful when the
            input data was not generated with --show-raw)\n" .
     "  --fp-gmean-name: name (label) of the floating point (FP) geometric mean\n" .
-    "  --extra-gnuplot: add extra commands to gnuplot (--barchart mode only)\n" .
+    "  --extra-gnuplot: add extra commands to gnuplot\n" .
     "  --int-gmean-name: name (label) of the integer (INT) geometric mean\n" .
     "  --gmean: include the geometric mean of the results\n" .
     "  --set={all,int,fp}. Default: all\n" .
@@ -205,11 +204,7 @@ sub pr {
 	shift @pr_files;
 	shift @pr_titles;
     }
-    if ($barchart) {
-	pr_barchart(\@pr_benchmarks, \@pr_files, \@pr_titles);
-    } else {
-	pr_regular(\@pr_benchmarks, \@pr_files, \@pr_titles);
-    }
+    pr_barchart(\@pr_benchmarks, \@pr_files, \@pr_titles);
 }
 
 sub pr_barchart {
