@@ -7,7 +7,7 @@ spec06.pl - Run SPEC06 benchmarks under an external tool, e.g. QEMU
 =head1 SYNOPSIS
 
  spec.pl [OPTIONS] <action=run,clean> <path_to_tool_binary> <path_to_spec> <benchmark(s)>
- Options: --config, --iterations, --size --tool-flags.
+ Options: --config, --iterations, --show-raw, --size, --tool-flags.
           --help for a brief help message.
  NOTES:
   <path_to_spec> points to the top SPEC06 directory.
@@ -289,6 +289,7 @@ my $config = 'x86_64';
 my $help;
 my $iterations = 1;
 my $tool_flags = '';
+my $show_raw;
 my $size = 'test';
 my $tune = 'base'; # could make this configurable, but bleh
 my $verbose;
@@ -297,6 +298,7 @@ GetOptions(
     'config=s' => \$config,
     'h|help|man' => \$help,
     'iterations=i' => \$iterations,
+    'show-raw' => \$show_raw,
     'size=s' => \$size,
     'tool-flags=s' => \$tool_flags,
     'verbose' => \$verbose,
@@ -402,6 +404,7 @@ sub action_run {
 	}
 	$results->{$bench}->{mean} = Mean::arithmetic(\@res);
 	$results->{$bench}->{stdev} = Mean::stdev(\@res);
+	$results->{$bench}->{raw} = \@res;
     }
     pr_results($results);
 }
@@ -416,10 +419,18 @@ sub pr_results {
     my ($results) = @_;
     my @titles = ('benchmark', 'mean', 'stdev');
 
+    if ($show_raw) {
+	push @titles, 'raw';
+    }
+
     print "# ", join("\t", @titles), "\n";
     foreach my $b (sort keys %{ $results }) {
 	my $r = $results->{$b};
 	my @arr = ($b, $r->{mean}, $r->{stdev});
+
+	if ($show_raw) {
+	    push @arr, join(',', @{ $r->{raw} });
+	}
 
 	print join("\t", @arr), "\n";
     }
