@@ -6,7 +6,7 @@ use strict;
 use Getopt::Long;
 use File::Basename;
 use lib dirname (__FILE__);
-use Mean;
+use Stats;
 
 my $barchart;
 my $gm;
@@ -165,7 +165,7 @@ sub compute_speedups {
 
 	    my $a_rel = $a->{stddev} / $a->{mean};
 	    my $b_rel = $b->{stddev} / $b->{mean};
-	    my $rel = Mean::sqrt_sum([ $a_rel, $b_rel ]);
+	    my $rel = Stats::sqrt_sum([ $a_rel, $b_rel ]);
 	    my $err = $rel * $val;
 	    $res->{$files[$i]}->{$bench}->{mean} = $val;
 	    $res->{$files[$i]}->{$bench}->{stddev} = $err;
@@ -190,7 +190,7 @@ sub compute_gmean {
 	    push @vals, $r->{mean};
 	    push @errors, $r->{stddev};
 	}
-	my ($gmean, $err) = Mean::geometric_err(\@vals, \@errors);
+	my ($gmean, $err) = Stats::geometric_err(\@vals, \@errors);
 	$res->{$f}->{gmean}->{mean} = $gmean;
 	$res->{$f}->{gmean}->{stddev} = $err;
     }

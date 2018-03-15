@@ -25,7 +25,7 @@ use File::Path qw(rmtree);
 use Getopt::Long;
 use Pod::Usage;
 use IO::Dir;
-use Mean;
+use Stats;
 
 my %noargs = (
     'test' => [''],
@@ -402,8 +402,8 @@ sub action_run {
 	for (my $i = 0; $i < $iterations; $i++) {
 	    push @res, run_benchmark($bench, $i + 1);
 	}
-	$results->{$bench}->{mean} = Mean::arithmetic(\@res);
-	$results->{$bench}->{stdev} = Mean::stdev(\@res);
+	$results->{$bench}->{mean} = Stats::arithmetic(\@res);
+	$results->{$bench}->{stdev} = Stats::stdev(\@res);
 	$results->{$bench}->{raw} = \@res;
     }
     pr_results($results);
