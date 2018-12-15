@@ -161,6 +161,7 @@ my %specint = (
     '483.xalancbmk' => {
 	'runs' => {
 	    'test' =>  ['-v test.xml xalanc.xsl'],
+	    'test+' => ['-v allbooks.xml xalanc.xsl'],
 	    'train' => ['-v allbooks.xml xalanc.xsl'],
 	    'ref' =>   ['-v t5.xml xalanc.xsl'],
 	},
@@ -182,6 +183,7 @@ my %specfp = (
     '416.gamess' => {
 	'runs' => {
 	    'test' =>  ['exam29.config'],
+	    'test+' => ['h2ocu2+.energy.config'],
 	    'train' => ['h2ocu2+.energy.config'],
 	    'ref' =>   ['cytosine.2.config',
 			'h2ocu2+.gradient.config',
@@ -228,6 +230,8 @@ my %specfp = (
     '450.soplex' => {
 	'runs' => {
 	    'test' =>  ['-m10000 test.mps'],
+	    'test+' => ['-s1 -e -m5000 pds-20.mps',
+		        '-m1200 train.mps'],
 	    'train' => ['-s1 -e -m5000 pds-20.mps',
 		        '-m1200 train.mps'],
 	    'ref' =>   ['-s1 -e -m45000 pds-50.mps',
@@ -244,6 +248,7 @@ my %specfp = (
     '454.calculix' => {
 	'runs' => {
 	    'test' =>  ['-i beampic'],
+	    'test+' => ['-i stairs'],
 	    'train' => ['-i stairs'],
 	    'ref' =>   ['-i hyperviscoplastic'],
 	},
@@ -324,6 +329,7 @@ test_valid(\%actions, $action, 'action');
 
 my %valid_size = (
     'test' => 1,
+    'test+' => 1,
     'train' => 1,
     'ref' => 1,
     );
@@ -458,8 +464,12 @@ sub prepare_run_dir {
     if (-d "$path/../data/all/input") {
 	sys("cp -r $path/../data/all/input/* $dirname");
     }
-    if (-d "$path/../data/$size/input") {
-	sys("cp -r $path/../data/$size/input/* $dirname");
+    my $size_orig = $size;
+    if ($size eq 'test+' && defined($all->{$benchmark}->{runs}->{$size})) {
+	$size_orig = 'train';
+    }
+    if (-d "$path/../data/$size_orig/input") {
+	sys("cp -r $path/../data/$size_orig/input/* $dirname");
     }
     if ($all->{$benchmark}->{post_setup}) {
 	$all->{$benchmark}->{post_setup}->($dirname);
@@ -523,7 +533,16 @@ sub run_benchmark {
     my $path = "$spec_path/benchspec/CPU2006/$benchmark";
     my $b = $all->{$benchmark};
     my $common = $b->{common} || "";
-    my $runs = $b->{runs}->{$size};
+    my $runs;
+    if ($size eq 'test+') {
+	if (defined($b->{runs}->{'test+'})) {
+	    $runs = $b->{runs}->{'test+'};
+	} else {
+	    $runs = $b->{runs}->{'test'};
+	}
+    } else {
+	$runs = $b->{runs}->{$size};
+    }
     my $exe = "$path/";
     my $beaut_exe = $b->{exe_name} || $benchmark;
     $beaut_exe =~ s/^[0-9]*\.//;
