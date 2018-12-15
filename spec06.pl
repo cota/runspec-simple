@@ -466,8 +466,11 @@ sub prepare_run_dir {
 	sys("cp -r $path/../data/all/input/* $dirname");
     }
     my $size_orig = $size;
-    if ($size eq 'test+' && defined($all->{$benchmark}->{runs}->{$size})) {
-	$size_orig = 'train';
+    if ($size eq 'test+') {
+	$size_orig = 'test';
+	if (defined($all->{$benchmark}->{runs}->{$size})) {
+	    $size_orig = 'train';
+	}
     }
     if (-d "$path/../data/$size_orig/input") {
 	sys("cp -r $path/../data/$size_orig/input/* $dirname");
